@@ -15,7 +15,7 @@ When you save a tool, Toolbox reads the following from the current web page:
 - **og:image** — to show a preview thumbnail
 - **Page text** (first 3,000 characters) — to auto-detect the tool's category and pricing model
 
-This data is read using Chrome's `scripting` API and is processed entirely within your browser. It is never sent to any external server.
+This data is read using Chrome's `scripting` API and is processed locally within your browser. Page metadata is not sent to external servers, except as noted under "External services" below.
 
 ## Where your data is stored
 
@@ -27,6 +27,8 @@ Toolbox makes requests to the following external services:
 
 - **Google Favicons API** (`google.com/s2/favicons`) — to fetch website icons for display. Only the domain name is sent; no personal data.
 - **Microlink API** (`api.microlink.io`) — to generate page screenshot previews when an og:image is not available. Only the page URL is sent; no personal data.
+
+- **Page HTML fetch (fallback)** — if the scripting API and content script are unavailable, Toolbox may fetch the page's HTML directly to extract meta tags. This request goes to the page's own server, not to any third-party service. No data from the response is stored beyond the extracted meta description and og:image URL.
 
 No analytics, tracking, or telemetry services are used.
 
@@ -50,4 +52,4 @@ All data can be deleted by removing the extension from Chrome, which clears the 
 
 ## Contact
 
-For questions about this privacy policy, contact: [your email here]
+For questions about this privacy policy, contact us via the [GitHub Issues page](https://github.com/lia-quijano/toolbox/issues).
