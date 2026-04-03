@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ─── Smooth defaults ─── */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── List item animations ─── */
+@keyframes item-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 120px;
+  }
+}
+
+@keyframes item-out {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    max-height: 120px;
+  }
+  40% {
+    opacity: 0.4;
+    transform: translateX(12px) scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(20px) scale(0.96);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+    border-width: 0;
+  }
+}
+
+.item-enter {
+  animation: item-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+}
+
+.item-exit {
+  animation: item-out 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ─── Checkbox transitions ─── */
+.checkbox-transition svg {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.15s ease;
+}
+
+.checkbox-transition:active svg {
+  transform: scale(0.85);
+}
+
+/* ─── Glow for newly saved items ─── */
+.animate-glow {
+  background-color: rgba(99, 102, 241, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.15);
+  transition: background-color 4s ease, box-shadow 4s ease;
+}
+
+/* The transition runs from the initial colored state to transparent.
+   We trigger it by adding the class, then the browser transitions to the
+   "natural" state. Use a tiny delay + animation to kick it off. */
+@keyframes glow-trigger {
+  0% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.animate-glow {
+  animation: glow-trigger 0.01s linear forwards;
+  background-color: rgba(99, 102, 241, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.15);
+}
+
+/* After the element is painted with the glow color, this keyframe-free
+   approach won't work. Instead, use a pseudo-element overlay that fades out. */
+.animate-glow {
+  position: relative;
+}
+
+.animate-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(99, 102, 241, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.12);
+  border-radius: inherit;
+  opacity: 1;
+  animation: glow-fade 5s ease-in-out forwards;
+  pointer-events: none;
+}
+
+@keyframes glow-fade {
+  0% { opacity: 1; }
+  30% { opacity: 0.6; }
+  60% { opacity: 0.25; }
+  80% { opacity: 0.08; }
+  100% { opacity: 0; }
+}
+
+/* ─── Preview tooltip ─── */
+@keyframes preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.preview-card {
+  animation: preview-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.preview-card img {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.preview-card img.loaded {
+  opacity: 1;
+}
+
+/* ─── Selection background ─── */
+.select-bg {
+  transition: background-color 0.2s ease;
+}
+
+/* ─── View transitions ─── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.view-enter {
+  animation: fade-in 0.2s ease forwards;
+}
+
+/* ─── Undo toast ─── */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast-enter {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
