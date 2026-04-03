@@ -52,14 +52,19 @@ export const TabScanner = forwardRef<TabScannerHandle, TabScannerProps>(
     useEffect(() => {
       scanTabs()
 
-      // Re-scan when tabs open or close
+      // Re-scan when tabs open, close, or finish loading — debounced
+      let debounce: ReturnType<typeof setTimeout>
       const listener = (message: { type: string }) => {
         if (message.type === 'TABS_CHANGED') {
-          scanTabs()
+          clearTimeout(debounce)
+          debounce = setTimeout(() => scanTabs(), 500)
         }
       }
       chrome.runtime?.onMessage?.addListener(listener)
-      return () => chrome.runtime?.onMessage?.removeListener(listener)
+      return () => {
+        chrome.runtime?.onMessage?.removeListener(listener)
+        clearTimeout(debounce)
+      }
     }, [])
 
     const unsavedTabs = tabs.filter((t) => !t.alreadySaved)

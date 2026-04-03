@@ -20,18 +20,26 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
   notifyTabChange(activeInfo.tabId)
 })
 
-// Current tab navigated to a new URL
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.active) {
-    notifyTabChange(tabId)
+// Any tab finishes loading — notify for both active tab sync and scan view refresh
+chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete') {
+    // Always notify scan view that tabs changed
+    broadcast({ type: 'TABS_CHANGED' })
+
+    // If it's the active tab, also update the save form
+    if (tab.active) {
+      broadcast({ type: 'TAB_CHANGED', url: tab.url, title: tab.title })
+    }
   }
 })
 
-// Tab opened or closed — notify for scan view refresh
+// Tab opened — notify scan view (tab won't have URL yet, but the
+// onUpdated 'complete' event above will catch it once it loads)
 chrome.tabs.onCreated.addListener(() => {
   broadcast({ type: 'TABS_CHANGED' })
 })
 
+// Tab closed — notify scan view
 chrome.tabs.onRemoved.addListener(() => {
   broadcast({ type: 'TABS_CHANGED' })
 })

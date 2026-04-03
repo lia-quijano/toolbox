@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Layers, Paintbrush, Sparkles, Code, Blocks, TrendingUp,
@@ -54,7 +54,7 @@ export function Sidebar({
       }`}
     >
       {/* Toggle */}
-      <div className={`flex items-center border-b border-gray-100 ${collapsed ? 'justify-center py-2.5' : 'justify-between px-3 py-2.5'}`}>
+      <div className={`flex items-center border-b border-gray-100 h-12 ${collapsed ? 'justify-center' : 'justify-between px-3'}`}>
         {!collapsed && (
           <span className="text-xs font-bold text-gray-900 tracking-tight">Toolbox</span>
         )}
@@ -183,22 +183,24 @@ function NavItem({
   const btnRef = useRef<HTMLButtonElement>(null)
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 })
 
-  useEffect(() => {
-    if (hovered && collapsed && btnRef.current) {
+  const handleMouseEnter = () => {
+    if (!collapsed) return
+    setHovered(true)
+    if (btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
       setTooltipPos({
         top: rect.top + rect.height / 2,
         left: rect.right + 8,
       })
     }
-  }, [hovered, collapsed])
+  }
 
   return (
     <>
       <button
         ref={btnRef}
         onClick={onClick}
-        onMouseEnter={() => setHovered(true)}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setHovered(false)}
         className={`w-full flex items-center rounded-md transition-colors ${
           collapsed
@@ -217,7 +219,7 @@ function NavItem({
 
       {collapsed && hovered && createPortal(
         <div
-          className="fixed z-[9999] px-2 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap pointer-events-none"
+          className={`fixed z-[9999] pl-3 ${count > 0 ? 'pr-2' : 'pr-3'} py-1.5 bg-gray-900 text-white text-xs rounded-full whitespace-nowrap pointer-events-none`}
           style={{
             top: tooltipPos.top,
             left: tooltipPos.left,

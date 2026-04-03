@@ -218,14 +218,14 @@ export const SaveForm = forwardRef<SaveFormHandle, SaveFormProps>(
     }
 
     const addTag = (tag: string) => {
-      const value = tag.trim().toLowerCase()
-      if (value && !tags.includes(value)) {
+      const value = tag.trim()
+      if (value && !tags.some((t) => t.toLowerCase() === value.toLowerCase())) {
         setTags([...tags, value])
       }
     }
 
     const addCustomTag = () => {
-      const value = customTagValue.trim().toLowerCase()
+      const value = customTagValue.trim()
       if (value) {
         addTag(value)
         setCustomTagValue('')
@@ -299,7 +299,7 @@ export const SaveForm = forwardRef<SaveFormHandle, SaveFormProps>(
 
     // Subcategories that aren't already chosen as the primary — available as tags
     const subTagSuggestions = subcategories
-      .filter((s) => s !== 'Other' && s !== subcategory && !tags.includes(s.toLowerCase()))
+      .filter((s) => s !== 'Other' && s !== subcategory && !tags.some((t) => t.toLowerCase() === s.toLowerCase()))
 
     const fieldLabel = "block text-[11px] font-medium text-gray-500 mb-1"
 
@@ -424,7 +424,7 @@ export const SaveForm = forwardRef<SaveFormHandle, SaveFormProps>(
           {subTagSuggestions.slice(0, 5).map((sub) => (
             <button
               key={sub}
-              onClick={() => addTag(sub.toLowerCase())}
+              onClick={() => addTag(sub)}
               className="px-2 py-0.5 text-xs rounded-full border border-gray-200 text-gray-500 hover:border-indigo-200 hover:text-indigo-600 transition-colors"
             >
               {sub}
