@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Toolbox",
   "description": "Save, categorise, and organise every tool you discover across the web — automatically. Local-first, no account needed.",
-  "version": "1.0.0",
-  "permissions": ["tabs", "storage", "scripting", "sidePanel"],
+  "version": "1.0.1",
+  "permissions": ["tabs", "scripting", "sidePanel"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_icon": {
