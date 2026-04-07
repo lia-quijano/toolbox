@@ -11,6 +11,9 @@ const SKIP_PATTERNS = [
   'x.com/home', 'facebook.com', 'instagram.com',
   'linkedin.com/feed', 'reddit.com',
   'localhost', '127.0.0.1',
+  'chrome.google.com/webstore', 'chromewebstore.google.com',
+  'addons.mozilla.org', 'microsoftedge.microsoft.com',
+  'extensions', 'devtools',
 ]
 
 interface ScannedTab {
@@ -95,29 +98,44 @@ export const TabScanner = forwardRef<TabScannerHandle, TabScannerProps>(
         candidates.push(tab)
       }
 
-      // Extract metadata from all tabs in parallel
+      // Extract metadata from all tabs in parallel (with timeout per tab)
+      const empty = { description: '', ogImage: '', pageText: '' }
+
+      function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+        return Promise.race([
+          promise,
+          new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+        ])
+      }
+
       const metadataResults = await Promise.allSettled(
         candidates.map(async (tab) => {
-          if (!tab.id) return { description: '', ogImage: '', pageText: '' }
-          try {
-            const results = await chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              func: () => {
-                const getMeta = (n: string) => {
-                  const el = document.querySelector(`meta[name="${n}"]`) || document.querySelector(`meta[property="${n}"]`)
-                  return el?.getAttribute('content')?.trim() || ''
-                }
-                return {
-                  description: getMeta('og:description') || getMeta('description'),
-                  ogImage: getMeta('og:image'),
-                  pageText: (document.body?.innerText || '').slice(0, 1500),
-                }
-              },
-            })
-            return results?.[0]?.result as { description: string; ogImage: string; pageText: string } || { description: '', ogImage: '', pageText: '' }
-          } catch {
-            return { description: '', ogImage: '', pageText: '' }
-          }
+          if (!tab.id) return empty
+          return withTimeout(
+            (async () => {
+              try {
+                const results = await chrome.scripting.executeScript({
+                  target: { tabId: tab.id! },
+                  func: () => {
+                    const getMeta = (n: string) => {
+                      const el = document.querySelector(`meta[name="${n}"]`) || document.querySelector(`meta[property="${n}"]`)
+                      return el?.getAttribute('content')?.trim() || ''
+                    }
+                    return {
+                      description: getMeta('og:description') || getMeta('description'),
+                      ogImage: getMeta('og:image'),
+                      pageText: (document.body?.innerText || '').slice(0, 1500),
+                    }
+                  },
+                })
+                return results?.[0]?.result as { description: string; ogImage: string; pageText: string } || empty
+              } catch {
+                return empty
+              }
+            })(),
+            3000, // 3 second timeout per tab
+            empty
+          )
         })
       )
 
